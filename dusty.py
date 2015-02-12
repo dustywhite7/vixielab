@@ -1,9 +1,10 @@
+###### IMPORT STATEMENTS
+from __future__ import division
 from sklearn.naive_bayes import GaussianNB
 from sklearn.metrics import accuracy_score
 from sklearn.cross_validation import train_test_split
 import pandas as pd
 import numpy as np
-from __future__ import division
 from scipy import stats
 
 def dataprep(filespot, deplabel, testsize):
