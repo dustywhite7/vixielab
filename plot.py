@@ -15,3 +15,4 @@ data = pd.read_csv('/Users/Dusty/Documents/Machine Learning/Vixie/etongueData.cs
 #data = data.drop('Sample', 1)
 data = data[['Sample', 'SRS', 'GPS', 'STS', 'UMS', 'SPS', 'SWS', 'BRS']]
 radviz(data, 'Sample')
+plt.show()
