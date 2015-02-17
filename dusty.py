@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 from scipy import stats
 
-def dataprep(filespot, deplabel, testsize):
+def dataprep(filespot, deplabel, testsize = .2):
     try:
         data = pd.read_csv(filespot)
     except:
@@ -46,23 +46,35 @@ def runGaussian(x_train, x_test, y_train, y_test):
     return clf
 
 
-def reg_OLS(dataset, dep, xvars, intercept):
+def reg_OLS(dataset, dep, xvars, intercept=1):
     if (str(type(dataset)) == "<class 'pandas.core.frame.DataFrame'>"):
 
         # Creating x and y matrices
         try:
-            n = np.shape(data)[0]
-            k = np.size(xvars)
-            y = dataset[dep]
+            n = np.shape(dataset)[0]
+            k = np.shape(xvars)[0]
+        except:
+            print 'Dataset not imported correctly'
+            return None
+        try:
+            y = dataset[str(dep)]
             x = pd.DataFrame()
+        except:
+            print 'Matrix y not created'
+            return None
+        try:
             for item in xvars:
                 x = x.append(dataset[item])
             x = x.T
+        except:
+            print 'Matrix x not created'
+            return None
+        try:
             if (intercept==1):
                 x['Intercept'] = np.ones(n)
                 k = k+1
         except:
-            print 'Invalid variable names'
+            print 'Intercept failed'
             return None
 
         # Generating Beta coefficients
@@ -80,8 +92,16 @@ def reg_OLS(dataset, dep, xvars, intercept):
         try:
             error = y - np.dot(x, bhat)
             SSE = np.dot(error.T, error)
+        except:
+            print 'Cannot compute SE inner product'
+            return None
+        try:
             sighat = SSE/(n-k)
             sd = np.dot(sighat, np.linalg.inv(xtx))
+        except:
+            print 'Cannot calculate sigma hat'
+            return None
+        try:
             stdErr = np.zeros(shape=(k,1))
             for i in range(k):
                 stdErr[i] = np.sqrt(sd[i][i])
@@ -102,7 +122,7 @@ def reg_OLS(dataset, dep, xvars, intercept):
         try:
             prob = np.zeros(shape=(k,1))
             for i in range(k):
-                prob[i] = 1-stats.t.cdf(abs(tstat[i]), 181)
+                prob[i] = 1-stats.t.cdf(abs(tstat[i]), n-k)
         except:
             print 'Cannot calculate significance level'
             return None
@@ -111,3 +131,55 @@ def reg_OLS(dataset, dep, xvars, intercept):
     else:
         print 'Data is not recognized as a Pandas Dataframe'
         return None
+
+
+def cv_Tree(dataset, dep, xvars, n_bins = 10):
+    if (str(type(dataset)) == "<class 'pandas.core.frame.DataFrame'>"):
+        # Creating x and y matrices
+        try:
+            n = np.shape(data)[0]
+            print n
+            # binset = n/n_bins
+            # y = dataset[dep]
+            # x = pd.DataFrame()
+            # for item in xvars:
+            #     x = x.append(dataset[item])
+            # nx = np.shape(x)[0]
+            # ny = np.shape(y)[0]
+            # print x
+            # resort1 = np.array(range(n))
+            # resort2 = np.array(np.random.random_sample(n))
+            # resort = np.array([resort1, resort2])
+            # resort = resort.T
+            # resort = sorted(resort, key = lambda x: x[1])
+            # resort = np.array(resort)
+            # print resort
+
+
+        except:
+            print 'Invalid variable names'
+            return None
+
+
+
+
+
+
+
+
+    else:
+        print 'Data is not recognized as a Pandas Dataframe'
+        return None 
+
+
+
+
+
+
+
+
+
+
+
+
+
