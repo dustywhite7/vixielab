@@ -1,6 +1,7 @@
 ###### IMPORT STATEMENTS
 from __future__ import division
 from sklearn.naive_bayes import GaussianNB
+from sklearn import tree
 from sklearn.metrics import accuracy_score
 from sklearn.cross_validation import train_test_split
 import pandas as pd
@@ -46,7 +47,7 @@ def runGaussian(x_train, x_test, y_train, y_test):
     return clf
 
 
-def reg_OLS(dataset, dep, xvars, intercept=1):
+def regOLS(dataset, dep, xvars, intercept=1):
     if (str(type(dataset)) == "<class 'pandas.core.frame.DataFrame'>"):
 
         # Creating x and y matrices
@@ -133,53 +134,68 @@ def reg_OLS(dataset, dep, xvars, intercept=1):
         return None
 
 
-def cv_Tree(dataset, dep, xvars, n_bins = 10):
+def cvTree(dataset, dep, n_bins = 10):
     if (str(type(dataset)) == "<class 'pandas.core.frame.DataFrame'>"):
         # Creating x and y matrices
         try:
-            n = np.shape(data)[0]
-            print n
-            # binset = n/n_bins
-            # y = dataset[dep]
-            # x = pd.DataFrame()
-            # for item in xvars:
-            #     x = x.append(dataset[item])
-            # nx = np.shape(x)[0]
-            # ny = np.shape(y)[0]
-            # print x
-            # resort1 = np.array(range(n))
-            # resort2 = np.array(np.random.random_sample(n))
-            # resort = np.array([resort1, resort2])
-            # resort = resort.T
-            # resort = sorted(resort, key = lambda x: x[1])
-            # resort = np.array(resort)
-            # print resort
-
+            n = np.shape(dataset)[0]
+            binset = n/n_bins
+            y = pd.DataFrame()
+            y = y.append(dataset[dep])
+            y = y.T
+            x = dataset.drop(dep, 1)
+            nx = np.shape(x)[0]
+            ny = np.shape(y)[0]
+            resort1 = np.array(range(n))
+            resort2 = np.array(np.random.random_sample(n))
+            resort = np.array([resort1, resort2])
+            resort = resort.T
+            resort = sorted(resort, key = lambda x: x[1])
+            resort = np.array(resort)
 
         except:
             print 'Invalid variable names'
             return None
 
+        try:
+            for i in range(n):
+                resort[i,1] = resort[i,0]//binset
+            resort = sorted(resort, key = lambda x: x[0])
+
+        except:
+            print 'Error in setting bins'
+            return None
+
+        try:
+            clf = tree.DecisionTreeClassifier()
+            acc = np.empty([n_bins,1])
+            for i in range(n_bins):
+                print i
+                # Collate test sets
+                x_train = pd.DataFrame()
+                y_train = pd.DataFrame()
+                x_test = pd.DataFrame()
+                y_test = pd.DataFrame()
+                for count in range(n):
+                    if (resort[count][1]==i):
+                        x_test = x_test.append(x.irow(count))
+                        y_test = y_test.append(y.irow(count))
+                    else:
+                        x_train = x_train.append(x.irow(count))
+                        y_train = y_train.append(y.irow(count))
+                # Run Classifier
+                clf.fit(x_train, y_train)
+                pred = clf.predict(x_test)
+                acc[[i]] = accuracy_score(y_test, pred)
 
 
+        except:
+            print 'Error in creating test and train sets'
+            return None
 
-
-
+        print acc
 
 
     else:
         print 'Data is not recognized as a Pandas Dataframe'
         return None 
-
-
-
-
-
-
-
-
-
-
-
-
-
