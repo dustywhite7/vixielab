@@ -1,0 +1,75 @@
+# This is for Charles' Etongue Data
++
++# ---------------------------
++# import packages
++
++import numpy as np
++import pandas as pd
++import scipy as sp
++from sklearn import preprocessing
++import matplotlib.pyplot as plt
++from mpl_toolkits.mplot3d import Axes3D
++
++
++from sklearn.cluster import KMeans
++from sklearn import datasets
++
++
++
++#--------------------------
++# Import Data
++Edata=pd.read_csv("/home/yunfeng/Desktop/2015/Lab_Charles_data/Practice/etongueData.csv")
++#Change this to your own path
++
++
++# --------------------------
++# Divide Edata into 2 groups: Mouthfeel and Chemical
++Mouthfeel=Edata.iloc[:,1:8]
++Chemical=Edata.iloc[:,8:18]
++#print(Chemical.shape)
++
++
++
++# ---------------
++# Plot all the chemical data
++
++for i in range(10):
++    plt.subplot(10,1,i)
++    plt.title(Chemical.columns[i])
++    plt.plot(Chemical.iloc[:,i:i+1])
++    
++plt.show()
++
++
++
++from sets import Set
++# ------------------------
++# Cluter by correlation
++# Since the corr method only works on row matrix, that's why we need Chemical. T
++corr=np.corrcoef(Chemical.T)
++#print(corr)
++
++#sort correlation matrix 
++unicorr=np.unique(corr)
++# print(unicorr)
++
++
++# Find out the chemical names and corresponding names
++Chemicalnames=Chemical.columns
++
++
++
++# -------------------------
++# Preprocess the data: Max method
++
++# Change the type of the data to float
++Chemical=Chemical.astype(np.float)
++
++
++# Normalize the data
++Chem_max = Chemical.max(axis=0) # axis=0 means columns
++Chem_norm=Chemical/(Chem_max)
++#print(Chem_norm)
++
++
++# Do cluetering: see the file http://nbviewer.ipython.org/github/herrfz/dataanalysis/blob/master/week4/clustering_example.ipynb
