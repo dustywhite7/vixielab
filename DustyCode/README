@@ -1,0 +1,33 @@
+****README****
+
+Created by Dusty White
+February 26, 2015
+
+This folder contains snippets of code to run several simple analyses on the e-Tongue data provided by Charles.
+
+Each python file should run as-is on any *nix system. Not sure if that is also the case for windows. :\ (sorry, Charles!)
+
+dusty.py:
+	Contains some code that I have been working on this semester to smooth the data processing for simple tasks and for 
+	investigating which classifiers are most effective. Will not return any results when run, but contains modules that
+	I make use of in some of the other files.
+
+DecisionTree.py
+	Contains code to execute a standard decision tree. Will return the accuracy score of the classifier, as well as output a file called firstTree.dot, which can be processed as an image file displaying the branches of the decision tree used for classification.
+
+RandomForest.py
+	Contains code to execute a random forest of 1000 trees (runs in parallel on any computer with multiple core processors). Will then return the accuracy score of the random forest classifier.
+
+Svm.py
+	Executes Support Vector Machine classification on the data. Returns the accuracy score of the classifier.
+
+KMeans.py
+	Outputs the clusters to which each testing point is assigned, and plots the distribution of the data across one input variable (can easily change in the code), and the class of the observation.
+
+LeastSquares.py
+	Performs Linear Regression of taste values on Alcohol level of the wine, but can be quickly modified to use any numeric input from the data as dependent or independent variable. Returns a table of coefficients, standard errors, t statistics and p values of the covariates used in the regression.
+
+
+Enjoy! :)
+
+--Dusty
