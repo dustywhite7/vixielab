@@ -7,6 +7,8 @@ from sklearn.cross_validation import train_test_split
 import pandas as pd
 import numpy as np
 from scipy import stats
+from sklearn import svm
+import warnings
 
 def dataprep(filespot, deplabel, testsize = .2):
     try:
@@ -134,77 +136,117 @@ def regOLS(dataset, dep, xvars, intercept=1):
         return None
 
 
-def cvTree(dataset, dep, n_bins = 10):
-    if (str(type(dataset)) == "<class 'pandas.core.frame.DataFrame'>"):
-        # Creating x and y matrices
+def cvTree(datafile, dep, observations, trials = 10, omit = None):
         try:
-            n = np.shape(dataset)[0]
-            binset = n/n_bins
-            y = pd.DataFrame()
-            y = y.append(dataset[dep])
-            y = y.T
-            x = dataset.drop(dep, 1)
-            nx = np.shape(x)[0]
-            ny = np.shape(y)[0]
-            resort1 = np.array(range(n))
-            resort2 = np.array(np.random.random_sample(n))
-            resort = np.array([resort1, resort2])
-            resort = resort.T
-            resort = sorted(resort, key = lambda x: x[1])
-            resort = np.array(resort)
-
-        except:
-            print 'Invalid variable names'
-            return None
-
-        try:
-            for i in range(n):
-                resort[i,1] = resort[i,0]//binset
-            resort = sorted(resort, key = lambda x: x[0])
-
-        except:
-            print 'Error in setting bins'
-            return None
-
-        try:
+            accuracy = np.zeros((trials, 1))
             clf = tree.DecisionTreeClassifier()
-            acc = np.empty([n_bins,1])
-            for i in range(n_bins):
-                print i
-                # Collate test sets
-                x_train = pd.DataFrame()
-                y_train = pd.DataFrame()
-                x_test = pd.DataFrame()
-                y_test = pd.DataFrame()
-                for count in range(n):
-                    if (resort[count][1]==i):
-                        x_test = x_test.append(x.irow(count))
-                        y_test = y_test.append(y.irow(count))
-                    else:
-                        x_train = x_train.append(x.irow(count))
-                        y_train = y_train.append(y.irow(count))
-                # Run Classifier
+            for i in range(10):
+                x_train, x_test, y_train, y_test = balance_sets(datafile, dep, observations, omit)
+
                 clf.fit(x_train, y_train)
                 pred = clf.predict(x_test)
-                acc[[i]] = accuracy_score(y_test, pred)
 
-
+                accuracy[i] = accuracy_score(y_test, pred)
+            return np.mean(accuracy)
         except:
-            print 'Error in creating test and train sets'
-            return None
-
-        print acc
+            print "Error in running Cross-validation"
 
 
-    else:
-        print 'Data is not recognized as a Pandas Dataframe'
-        return None 
+
+def cvSvmLin(datafile, dep, observations, trials = 10, omit = None):
+        try:
+            accuracy = np.zeros((trials, 1))
+            clf = svm.SVC(kernel = 'linear', C = 100)
+            for i in range(10):
+                x_train, x_test, y_train, y_test = balance_sets(datafile, dep, observations, omit)
+
+                clf.fit(x_train, y_train)
+                pred = clf.predict(x_test)
+
+                accuracy[i] = accuracy_score(y_test, pred)
+            return np.mean(accuracy)
+        except:
+            print "Error in running Cross-validation"
 
 
+
+def cvSvmPoly(datafile, dep, observations, trials = 10, omit = None):
+        try:
+            accuracy = np.zeros((trials, 1))
+            clf = svm.SVC(kernel = 'poly', C = 100)
+            for i in range(10):
+                x_train, x_test, y_train, y_test = balance_sets(datafile, dep, observations, omit)
+
+                clf.fit(x_train, y_train)
+                pred = clf.predict(x_test)
+
+                accuracy[i] = accuracy_score(y_test, pred)
+            return np.mean(accuracy)
+        except:
+            print "Error in running Cross-validation"
+
+
+def cvSvmRbf(datafile, dep, observations, trials = 10, omit = None):
+        try:
+            accuracy = np.zeros((trials, 1))
+            clf = svm.SVC(kernel = 'rbf', C = 100)
+            for i in range(10):
+                x_train, x_test, y_train, y_test = balance_sets(datafile, dep, observations, omit)
+
+                clf.fit(x_train, y_train)
+                pred = clf.predict(x_test)
+
+                accuracy[i] = accuracy_score(y_test, pred)
+            return np.mean(accuracy)
+        except:
+            print "Error in running Cross-validation"
+
+
+def cvNB(datafile, dep, observations, trials = 10, omit = None):
+        try:
+            accuracy = np.zeros((trials, 1))
+            clf = GaussianNB()
+            for i in range(10):
+                x_train, x_test, y_train, y_test = balance_sets(datafile, dep, observations, omit)
+
+                clf.fit(x_train, y_train)
+                pred = clf.predict(x_test)
+
+                accuracy[i] = accuracy_score(y_test, pred)
+            return np.mean(accuracy)
+        except:
+            print "Error in running Cross-validation"
+
+
+def dustyCV(datafile, dep, observations, trials = 10, omit = None):
+
+    warnings.filterwarnings("ignore")
+    acc = np.zeros((5,1))
+
+    acc[0] = cvTree(datafile, dep, observations, trials, omit)
+    acc[1] = cvSvmLin(datafile, dep, observations, trials, omit)
+    acc[2] = cvSvmPoly(datafile, dep, observations, trials, omit)
+    acc[3] = cvSvmRbf(datafile, dep, observations, trials, omit)
+    acc[4] = cvNB(datafile, dep, observations, trials, omit)
+
+    print "\n"
+    print "-"*40
+    print "Classifier".ljust(20) + "Accuracy Score".ljust(20)
+    print "Decision Tree".ljust(20) + str(acc[0]).ljust(20)
+    print "Linear SVM".ljust(20) + str(acc[1]).ljust(20)
+    print "Polynomial SVM".ljust(20) + str(acc[2]).ljust(20)
+    print "RBF SVM".ljust(20) + str(acc[3]).ljust(20)
+    print "Naive Bayes".ljust(20) + str(acc[4]).ljust(20)
+    print "-"*40
+    print "All classifiers iterated " + str(trials) + " times."
+    print "-"*40
+
+
+    return None
 
 ##### CREATE DATA THAT ENSURES SOME OF EACH GROUP IS IN BOTH TRAINING AND TESTING SETS
 
-def balance_sets(filespot, deplabel, num_samp, testsize = .2):
+def balance_sets(filespot, deplabel, num_samp, omit = None):
     try:
         data = pd.read_csv(filespot)
     except:
@@ -215,39 +257,39 @@ def balance_sets(filespot, deplabel, num_samp, testsize = .2):
             return None, None, None, None
 
     try:
-        y = data[deplabel]
-        y = pd.DataFrame(y)
+        if omit is not None:
+            for m in range(len(omit)):
+                data = data.drop(omit[m], 1)
+        y = pd.DataFrame(data[deplabel].ravel())
         x = data.drop(deplabel, 1)
         x = pd.DataFrame(x)
     except:
         print "Invalid Dependent Variable"
         return None, None, None, None
 
-    if ((testsize <=1) & (testsize >=0)):
-        try:
-            size = int(np.shape(data)[0]/num_samp)
-            test = np.zeros((size,1))
-            for i in range(size):
-                test[i] = np.random.randint(0,num_samp)
-            xtest = pd.DataFrame()
-            xtrain = pd.DataFrame()
-            ytest = pd.DataFrame()
-            ytrain = pd.DataFrame()
-            for i in range(size):
-                for j in range(num_samp):
-                    if (test[i]==j):
-                        xtest = xtest.append(x.ix[i*3+j], 0)
-                        ytest = ytest.append(y.ix[i*3+j], 0)
-                    else:
-                        xtrain = xtrain.append(x.ix[i*3+j], 0)
-                        ytrain = ytrain.append(y.ix[i*3+j], 0)
-        except:
-            print "Could not create training and testing data."
-            return None, None, None, None
+
+    try:
+        size = int(np.shape(data)[0]/num_samp)
+        test = np.zeros((size,1))
+        for i in range(size):
+            test[i] = np.ceil(num_samp*np.random.random())
+        xtest = pd.DataFrame()
+        xtrain = pd.DataFrame()
+        ytest = pd.DataFrame()
+        ytrain = pd.DataFrame()
+        for i in range(size):
+            for j in range(num_samp):
+                if (test[i]==j):
+                    xtest = xtest.append(x.ix[i*3+j], 0)
+                    ytest = ytest.append(y.ix[i*3+j], 0)
+                else:
+                    xtrain = xtrain.append(x.ix[i*3+j], 0)
+                    ytrain = ytrain.append(y.ix[i*3+j], 0)
+    except:
+        print "Could not create training and testing data."
+        return None, None, None, None
 
 
 
 
-        return xtrain, xtest, ytrain, ytest
-    else:
-        print "Invalid Proportion for Test Set"
+    return xtrain, xtest, ytrain, ytest
