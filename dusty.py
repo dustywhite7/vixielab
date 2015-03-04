@@ -199,3 +199,55 @@ def cvTree(dataset, dep, n_bins = 10):
     else:
         print 'Data is not recognized as a Pandas Dataframe'
         return None 
+
+
+
+##### CREATE DATA THAT ENSURES SOME OF EACH GROUP IS IN BOTH TRAINING AND TESTING SETS
+
+def balance_sets(filespot, deplabel, num_samp, testsize = .2):
+    try:
+        data = pd.read_csv(filespot)
+    except:
+        try:
+            data = pd.read_csv(filespot)
+        except:
+            print "Data not in CSV or Excel format."
+            return None, None, None, None
+
+    try:
+        y = data[deplabel]
+        y = pd.DataFrame(y)
+        x = data.drop(deplabel, 1)
+        x = pd.DataFrame(x)
+    except:
+        print "Invalid Dependent Variable"
+        return None, None, None, None
+
+    if ((testsize <=1) & (testsize >=0)):
+        try:
+            size = int(np.shape(data)[0]/num_samp)
+            test = np.zeros((size,1))
+            for i in range(size):
+                test[i] = np.random.randint(0,num_samp)
+            xtest = pd.DataFrame()
+            xtrain = pd.DataFrame()
+            ytest = pd.DataFrame()
+            ytrain = pd.DataFrame()
+            for i in range(size):
+                for j in range(num_samp):
+                    if (test[i]==j):
+                        xtest = xtest.append(x.ix[i*3+j], 0)
+                        ytest = ytest.append(y.ix[i*3+j], 0)
+                    else:
+                        xtrain = xtrain.append(x.ix[i*3+j], 0)
+                        ytrain = ytrain.append(y.ix[i*3+j], 0)
+        except:
+            print "Could not create training and testing data."
+            return None, None, None, None
+
+
+
+
+        return xtrain, xtest, ytrain, ytest
+    else:
+        print "Invalid Proportion for Test Set"
