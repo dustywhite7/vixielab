@@ -11,6 +11,6 @@ from dusty import dustyCV
 
 data = pd.read_csv('/Users/Dusty/Documents/Machine Learning/vixielab/etongueData.csv')
 
-dustyCV('/Users/Dusty/Documents/Machine Learning/vixielab/etongueData.csv', 'Sample', 3, omit = ['GPS', 'SRS'])
+results = dustyCV('/Users/Dusty/Documents/Machine Learning/vixielab/etongueData.csv', 'Sample', 3, omit = ['GPS', 'SRS'])
 
 # data = balance_sets('/Users/Dusty/Documents/Machine Learning/vixielab/etongueData.csv', 'Sample', 3, ['GPS', 'SRS'])

@@ -242,7 +242,7 @@ def dustyCV(datafile, dep, observations, trials = 10, omit = None):
     print "-"*40
 
 
-    return None
+    return acc
 
 ##### CREATE DATA THAT ENSURES SOME OF EACH GROUP IS IN BOTH TRAINING AND TESTING SETS
 
