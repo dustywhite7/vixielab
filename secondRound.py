@@ -1,11 +1,11 @@
 ###### IMPORT STATEMENTS
 from __future__ import division
 from sklearn import tree
-from sklearn.metrics import accuracy_score
+from sklearn import ensemble
 from sklearn.cross_validation import train_test_split
 import pandas as pd
 import numpy as np
-import warnings
+from sklearn import svm
 
 ##### IMPORT DATA AND BREAK INTO TRAINING AND TESTING DATA
 
@@ -69,4 +69,18 @@ print '-'*40
 print 'Mean R-squared'.ljust(20) + str(rsq/1000)
 print '\n'
 
+#scores = np.zeros((len(ylab),1))
+#xtrain, xtest, ytrain, ytest = train_test_split(x,y,test_size = .2)
+#for i in range(len(ylab)):
+#    clf = svm.SVR(kernel = 'linear', C = 1, epsilon = .1, degree = 3)
+#    clf.fit(xtrain, ytrain[:,i])
+#    scores[i] = clf.score(xtest, ytest[:,i])
+#    
+#print 'Scores for SVR:\n'
+#print scores    
 
+##### RANDOM FOREST REGRESSOR - BEST PERFORMANCE TO DATE - RSQ = .67
+
+clf = ensemble.RandomForestRegressor(n_estimators = 10000, n_jobs = -1)
+clf.fit(xtrain, ytrain)
+clf.score(xtest,ytest)
