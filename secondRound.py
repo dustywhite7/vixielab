@@ -75,12 +75,14 @@ print '\n'
 #    clf = svm.SVR(kernel = 'linear', C = 1, epsilon = .1, degree = 3)
 #    clf.fit(xtrain, ytrain[:,i])
 #    scores[i] = clf.score(xtest, ytest[:,i])
-#    
+#
 #print 'Scores for SVR:\n'
-#print scores    
+#print scores
 
 ##### RANDOM FOREST REGRESSOR - BEST PERFORMANCE TO DATE - RSQ = .67
 
 clf = ensemble.RandomForestRegressor(n_estimators = 10000, n_jobs = -1)
 clf.fit(xtrain, ytrain)
-clf.score(xtest,ytest)
+score = clf.score(xtest,ytest)
+
+print "Random Forest Score: " + str(score)
